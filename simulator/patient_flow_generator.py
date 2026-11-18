@@ -34,7 +34,12 @@ def inject_dirty_data(record):
 
     # 5% chance to have future admission timestamp
     if random.random() < 0.05:
-        record["admission_time"] = (datetime.utcnow()+ timedelta(hours=random.randint(1, 72))).isoformat()
+        original_admission = datetime.fromisoformat(record["admission_time"])
+        length_of_stay = datetime.fromisoformat(record["discharge_time"]) - original_admission
+        future_admission = datetime.utcnow() + timedelta(hours=random.randint(1, 72))
+        record["admission_time"] = future_admission.isoformat()
+        # Keep discharge after admission by shifting it with the same length of stay
+        record["discharge_time"] = (future_admission + length_of_stay).isoformat()
 
     return record
 
